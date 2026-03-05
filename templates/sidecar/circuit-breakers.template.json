@@ -1,0 +1,31 @@
+[
+  {
+    "agentId": "main",
+    "state": "closed",
+    "failureCount": 0,
+    "successCount": 47,
+    "lastSuccessAt": 1709293000000,
+    "threshold": 5,
+    "dependencies": []
+  },
+  {
+    "agentId": "shellcorp-builder",
+    "state": "half_open",
+    "failureCount": 3,
+    "successCount": 28,
+    "lastFailureAt": 1709291000000,
+    "lastSuccessAt": 1709292000000,
+    "threshold": 5,
+    "dependencies": ["main"]
+  },
+  {
+    "agentId": "shellcorp-pm",
+    "state": "closed",
+    "failureCount": 1,
+    "successCount": 62,
+    "lastFailureAt": 1709280000000,
+    "lastSuccessAt": 1709293000000,
+    "threshold": 5,
+    "dependencies": ["main"]
+  }
+]

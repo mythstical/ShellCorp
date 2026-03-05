@@ -32,6 +32,12 @@ import type {
   PendingApprovalModel,
   OfficeSettingsModel,
   MeshAssetModel,
+  AgentPlanModel,
+  AgentKpiModel,
+  AgentCommModel,
+  CircuitBreakerModel,
+  ExtractedSkillModel,
+  CompanyHealthModel,
 } from "./openclaw-types";
 import { buildGatewayHeaders } from "./gateway-config";
 
@@ -1390,5 +1396,199 @@ export class OpenClawAdapter {
     } catch {
       return { ok: false, error: "resolve_request_failed" };
     }
+  }
+
+  // ── Agent Plans (Kanban) ──────────────────────────────────────────────
+  async getAgentPlans(): Promise<AgentPlanModel[]> {
+    try {
+      const payload = await this.readJson("/openclaw/agent-plans");
+      return normalizeArray(payload.plans, (entry): AgentPlanModel | null => {
+        if (!entry || typeof entry !== "object") return null;
+        const row = entry as Json;
+        const id = String(row.id ?? "").trim();
+        if (!id) return null;
+        return {
+          id,
+          agentId: String(row.agentId ?? ""),
+          title: String(row.title ?? ""),
+          goal: String(row.goal ?? ""),
+          riskLevel: (["low", "medium", "high", "critical"].includes(String(row.riskLevel)) ? String(row.riskLevel) : "medium") as AgentPlanModel["riskLevel"],
+          status: (["proposed", "approved", "in_progress", "completed", "rejected"].includes(String(row.status)) ? String(row.status) : "proposed") as AgentPlanModel["status"],
+          steps: normalizeArray(row.steps, (s): AgentPlanModel["steps"][number] | null => {
+            if (!s || typeof s !== "object") return null;
+            const step = s as Json;
+            return {
+              id: String(step.id ?? ""),
+              description: String(step.description ?? ""),
+              toolName: typeof step.toolName === "string" ? step.toolName : undefined,
+              status: (["pending", "running", "done", "skipped"].includes(String(step.status)) ? String(step.status) : "pending") as "pending" | "running" | "done" | "skipped",
+            };
+          }),
+          estimatedImpact: typeof row.estimatedImpact === "string" ? row.estimatedImpact : undefined,
+          createdAt: typeof row.createdAt === "number" ? row.createdAt : Date.now(),
+          resolvedAt: typeof row.resolvedAt === "number" ? row.resolvedAt : undefined,
+        };
+      });
+    } catch {
+      return [];
+    }
+  }
+
+  async resolvePlan(id: string, decision: string): Promise<{ ok: boolean; error?: string }> {
+    try {
+      const response = await fetch(`${this.stateUrl}/openclaw/agent-plans/resolve`, {
+        method: "POST",
+        headers: buildGatewayHeaders({ "content-type": "application/json" }),
+        body: JSON.stringify({ id, decision }),
+      });
+      const payload = (await response.json()) as Json;
+      return { ok: payload.ok === true, error: typeof payload.error === "string" ? payload.error : undefined };
+    } catch {
+      return { ok: false, error: "resolve_plan_failed" };
+    }
+  }
+
+  // ── Agent KPIs ────────────────────────────────────────────────────────
+  async getAgentKpis(): Promise<AgentKpiModel[]> {
+    try {
+      const payload = await this.readJson("/openclaw/agent-kpis");
+      return normalizeArray(payload.kpis, (entry): AgentKpiModel | null => {
+        if (!entry || typeof entry !== "object") return null;
+        const row = entry as Json;
+        const agentId = String(row.agentId ?? "").trim();
+        if (!agentId) return null;
+        return {
+          agentId,
+          displayName: String(row.displayName ?? agentId),
+          tasksCompleted: typeof row.tasksCompleted === "number" ? row.tasksCompleted : 0,
+          tasksFailed: typeof row.tasksFailed === "number" ? row.tasksFailed : 0,
+          tasksInProgress: typeof row.tasksInProgress === "number" ? row.tasksInProgress : 0,
+          avgResponseMs: typeof row.avgResponseMs === "number" ? row.avgResponseMs : 0,
+          errorRate: typeof row.errorRate === "number" ? row.errorRate : 0,
+          qualityScore: typeof row.qualityScore === "number" ? row.qualityScore : 0,
+          sessionCount: typeof row.sessionCount === "number" ? row.sessionCount : 0,
+          tokenUsage: typeof row.tokenUsage === "number" ? row.tokenUsage : 0,
+          trend: Array.isArray(row.trend) ? (row.trend as number[]) : [],
+          period: (["24h", "7d", "30d"].includes(String(row.period)) ? String(row.period) : "7d") as AgentKpiModel["period"],
+        };
+      });
+    } catch {
+      return [];
+    }
+  }
+
+  // ── Agent Communications ──────────────────────────────────────────────
+  async getAgentComms(): Promise<AgentCommModel[]> {
+    try {
+      const payload = await this.readJson("/openclaw/agent-comms");
+      return normalizeArray(payload.comms, (entry): AgentCommModel | null => {
+        if (!entry || typeof entry !== "object") return null;
+        const row = entry as Json;
+        const id = String(row.id ?? "").trim();
+        if (!id) return null;
+        return {
+          id,
+          fromAgentId: String(row.fromAgentId ?? ""),
+          toAgentId: String(row.toAgentId ?? ""),
+          messageType: (["delegation", "status_update", "escalation", "query"].includes(String(row.messageType)) ? String(row.messageType) : "status_update") as AgentCommModel["messageType"],
+          summary: String(row.summary ?? ""),
+          ts: typeof row.ts === "number" ? row.ts : Date.now(),
+        };
+      });
+    } catch {
+      return [];
+    }
+  }
+
+  // ── Circuit Breakers ──────────────────────────────────────────────────
+  async getCircuitBreakers(): Promise<CircuitBreakerModel[]> {
+    try {
+      const payload = await this.readJson("/openclaw/circuit-breakers");
+      return normalizeArray(payload.breakers, (entry): CircuitBreakerModel | null => {
+        if (!entry || typeof entry !== "object") return null;
+        const row = entry as Json;
+        const agentId = String(row.agentId ?? "").trim();
+        if (!agentId) return null;
+        return {
+          agentId,
+          state: (["closed", "open", "half_open"].includes(String(row.state)) ? String(row.state) : "closed") as CircuitBreakerModel["state"],
+          failureCount: typeof row.failureCount === "number" ? row.failureCount : 0,
+          successCount: typeof row.successCount === "number" ? row.successCount : 0,
+          lastFailureAt: typeof row.lastFailureAt === "number" ? row.lastFailureAt : undefined,
+          lastSuccessAt: typeof row.lastSuccessAt === "number" ? row.lastSuccessAt : undefined,
+          threshold: typeof row.threshold === "number" ? row.threshold : 5,
+          dependencies: Array.isArray(row.dependencies) ? (row.dependencies as string[]) : [],
+        };
+      });
+    } catch {
+      return [];
+    }
+  }
+
+  async toggleCircuitBreaker(agentId: string, state: string): Promise<{ ok: boolean; error?: string }> {
+    try {
+      const response = await fetch(`${this.stateUrl}/openclaw/circuit-breakers/toggle`, {
+        method: "POST",
+        headers: buildGatewayHeaders({ "content-type": "application/json" }),
+        body: JSON.stringify({ agentId, state }),
+      });
+      const payload = (await response.json()) as Json;
+      return { ok: payload.ok === true, error: typeof payload.error === "string" ? payload.error : undefined };
+    } catch {
+      return { ok: false, error: "toggle_breaker_failed" };
+    }
+  }
+
+  // ── Extracted Skills ──────────────────────────────────────────────────
+  async getExtractedSkills(): Promise<ExtractedSkillModel[]> {
+    try {
+      const payload = await this.readJson("/openclaw/extracted-skills");
+      return normalizeArray(payload.skills, (entry): ExtractedSkillModel | null => {
+        if (!entry || typeof entry !== "object") return null;
+        const row = entry as Json;
+        const id = String(row.id ?? "").trim();
+        if (!id) return null;
+        return {
+          id,
+          name: String(row.name ?? ""),
+          description: String(row.description ?? ""),
+          sourceAgentId: String(row.sourceAgentId ?? ""),
+          extractedAt: typeof row.extractedAt === "number" ? row.extractedAt : Date.now(),
+          usageCount: typeof row.usageCount === "number" ? row.usageCount : 0,
+          successRate: typeof row.successRate === "number" ? row.successRate : 0,
+          category: String(row.category ?? "General"),
+          tags: Array.isArray(row.tags) ? (row.tags as string[]) : [],
+        };
+      });
+    } catch {
+      return [];
+    }
+  }
+
+  // ── Company Health (derived) ──────────────────────────────────────────
+  deriveCompanyHealth(unified: UnifiedOfficeModel): CompanyHealthModel {
+    const agents = unified.company.agents ?? [];
+    const tasks = unified.company.tasks ?? [];
+    const activeAgents = agents.filter((a) => a.lifecycleState === "active").length;
+    const idleAgents = agents.filter((a) => a.lifecycleState === "idle").length;
+    const errorAgents = unified.diagnostics.missingRuntimeAgentIds.length;
+    const completedTasks = tasks.filter((t) => t.status === "done").length;
+    const openTasks = tasks.filter((t) => t.status !== "done").length;
+    const pressures = unified.workload.map((w) => w.queuePressure);
+    const avgPressure = pressures.includes("high") ? "high" : pressures.includes("medium") ? "medium" : "low";
+    const overallStatus = unified.warnings.length > 3 || errorAgents > 0 ? "critical" : unified.warnings.length > 0 ? "degraded" : "healthy";
+    return {
+      overallStatus,
+      activeAgents,
+      idleAgents,
+      errorAgents,
+      totalTasks: tasks.length,
+      completedTasks,
+      openTasks,
+      avgQueuePressure: avgPressure,
+      warningCount: unified.warnings.length,
+      heartbeatSuccessRate: agents.length > 0 ? (agents.length - errorAgents) / agents.length : 1,
+      tokenUsageTotal: 0,
+    };
   }
 }

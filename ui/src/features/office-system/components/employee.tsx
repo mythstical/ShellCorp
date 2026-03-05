@@ -780,12 +780,37 @@ const Employee = memo(function Employee({
         }
     }, [isSelected, setSelectedObjectId, employeeIdString]);
 
-    // Hover scale animation
+    // Hover scale animation + status-based body animations
     const hoverScale = isHovered && !isSelected ? 1.05 : 1.0;
-    useFrame(() => {
-        if (groupRef.current) {
-            const targetScale = new THREE.Vector3(hoverScale, hoverScale, hoverScale);
-            groupRef.current.scale.lerp(targetScale, 0.1);
+    const bodyAnimRef = useRef({ bobPhase: Math.random() * Math.PI * 2, tiltAmount: 0 });
+    useFrame((state) => {
+        if (!groupRef.current) return;
+        const targetScale = new THREE.Vector3(hoverScale, hoverScale, hoverScale);
+        groupRef.current.scale.lerp(targetScale, 0.1);
+
+        const t = state.clock.elapsedTime;
+        const anim = bodyAnimRef.current;
+
+        // Status-based animations for lifecycle awareness
+        if (currentStatus === 'success') {
+            // Active/typing: subtle forward lean + slight bob
+            const typingBob = Math.sin(t * 4 + anim.bobPhase) * 0.005;
+            groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, 0.05 + typingBob, 0.05);
+            groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, 0, 0.05);
+        } else if (currentStatus === 'warning') {
+            // Error/distress: slight shake
+            const shake = Math.sin(t * 8) * 0.02;
+            groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, shake, 0.1);
+            groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, 0, 0.05);
+        } else if (currentStatus === 'info') {
+            // Idle: gentle sway/breathing
+            const sway = Math.sin(t * 0.8 + anim.bobPhase) * 0.015;
+            groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, sway, 0.05);
+            groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, 0, 0.05);
+        } else {
+            // Default: ease back to neutral
+            groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, 0, 0.05);
+            groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, 0, 0.05);
         }
     });
 

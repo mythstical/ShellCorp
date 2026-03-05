@@ -32,6 +32,7 @@ import { getAbsoluteDeskPosition, getDeskRotation } from '@/convex/utils/layout'
 
 import { PlacementHandler } from './placement-handler';
 import { ViewComputerDialog } from '@/features/remote-cua-system/components/view-computer-dialog';
+import { CommBeams } from './hud/comm-beams';
 
 /**
  * @file components/office-scene.tsx
@@ -719,6 +720,9 @@ const SceneContents = ({
                     profileImageUrl={emp.profileImageUrl}
                 />
             ))}
+
+            {/* Inter-agent communication beams */}
+            {!sceneBuilderMode && <CommBeams employees={employeesForScene} />}
 
             {/* Visual-first safety toggle: object-heavy rendering can be re-enabled once stable. */}
             {enableOfficeObjects ? officeObjectsRendered : null}

@@ -311,6 +311,115 @@ export interface PendingApprovalModel {
   status: ApprovalStatus;
 }
 
+// ── Plan-Level Permissioning (Kanban) ──────────────────────────────────
+export type PlanStatus = "proposed" | "approved" | "in_progress" | "completed" | "rejected";
+
+export interface PlanStepModel {
+  id: string;
+  description: string;
+  toolName?: string;
+  status: "pending" | "running" | "done" | "skipped";
+}
+
+export interface AgentPlanModel {
+  id: string;
+  agentId: string;
+  title: string;
+  goal: string;
+  riskLevel: ApprovalRiskLevel;
+  status: PlanStatus;
+  steps: PlanStepModel[];
+  estimatedImpact?: string;
+  createdAt: number;
+  resolvedAt?: number;
+}
+
+// ── Agent Performance KPIs ─────────────────────────────────────────────
+export interface AgentKpiModel {
+  agentId: string;
+  displayName: string;
+  tasksCompleted: number;
+  tasksFailed: number;
+  tasksInProgress: number;
+  avgResponseMs: number;
+  errorRate: number;
+  qualityScore: number;
+  sessionCount: number;
+  tokenUsage: number;
+  trend: number[];
+  period: "24h" | "7d" | "30d";
+}
+
+// ── Inter-Agent Communication ──────────────────────────────────────────
+export type CommMessageType = "delegation" | "status_update" | "escalation" | "query";
+
+export interface AgentCommModel {
+  id: string;
+  fromAgentId: string;
+  toAgentId: string;
+  messageType: CommMessageType;
+  summary: string;
+  ts: number;
+}
+
+// ── Circuit Breaker / Cascading Failure ────────────────────────────────
+export type CircuitBreakerState = "closed" | "open" | "half_open";
+
+export interface CircuitBreakerModel {
+  agentId: string;
+  state: CircuitBreakerState;
+  failureCount: number;
+  successCount: number;
+  lastFailureAt?: number;
+  lastSuccessAt?: number;
+  threshold: number;
+  dependencies: string[];
+}
+
+// ── Memory Categorization ──────────────────────────────────────────────
+export type MemoryCategory = "episodic" | "semantic" | "procedural";
+
+export const MEMORY_TYPE_TO_CATEGORY: Record<string, MemoryCategory> = {
+  discovery: "episodic",
+  problem: "episodic",
+  warning: "episodic",
+  success: "episodic",
+  decision: "semantic",
+  pattern: "semantic",
+  feature: "semantic",
+  solution: "procedural",
+  refactor: "procedural",
+  bugfix: "procedural",
+};
+
+// ── Extracted Skills ───────────────────────────────────────────────────
+export interface ExtractedSkillModel {
+  id: string;
+  name: string;
+  description: string;
+  sourceAgentId: string;
+  extractedAt: number;
+  usageCount: number;
+  successRate: number;
+  category: string;
+  tags: string[];
+}
+
+// ── Company Health ─────────────────────────────────────────────────────
+export interface CompanyHealthModel {
+  overallStatus: "healthy" | "degraded" | "critical";
+  activeAgents: number;
+  idleAgents: number;
+  errorAgents: number;
+  totalTasks: number;
+  completedTasks: number;
+  openTasks: number;
+  avgQueuePressure: "low" | "medium" | "high";
+  warningCount: number;
+  heartbeatSuccessRate: number;
+  tokenUsageTotal: number;
+}
+
 export interface UnifiedOfficeModel {
   company: CompanyModel;
   runtimeAgents: AgentCardModel[];

@@ -15,7 +15,12 @@ import {
     Users,
     UserSearch,
     Wrench,
-    ShieldCheck,
+    ClipboardList,
+    BarChart3,
+    Shield,
+    Brain,
+    BookMarked,
+    Activity,
 } from "lucide-react";
 import { SpeedDial, type SpeedDialItem } from "@/components/ui/speed-dial";
 import { useNavigate } from "react-router-dom";
@@ -28,7 +33,12 @@ import { TeamManager } from "./team-manager";
 import { TeamDirectory } from "./team-directory";
 import { ToolManager } from "./tool-manager";
 import { SkillManager } from "./skill-manager";
-import { ApprovalQueue } from "./approval-queue";
+import { PlanKanban } from "./plan-kanban";
+import { KpiDashboard } from "./kpi-dashboard";
+import { CircuitBreakerPanel } from "./circuit-breaker-panel";
+import { MemoryViewer } from "./memory-viewer";
+import { SkillLibrary } from "./skill-library";
+import { CompanyHealthPanel } from "./company-health-panel";
 import { stateBase } from "@/lib/gateway-config";
 import { OpenClawAdapter } from "@/lib/openclaw-adapter";
 
@@ -61,16 +71,23 @@ export function OfficeMenu({
     const [isTeamDirectoryOpen, setIsTeamDirectoryOpen] = useState(false);
     const [isToolManagerOpen, setIsToolManagerOpen] = useState(false);
     const [isSkillManagerOpen, setIsSkillManagerOpen] = useState(false);
-    const [isApprovalQueueOpen, setIsApprovalQueueOpen] = useState(false);
-    const [approvalCount, setApprovalCount] = useState(0);
+    const [isPlanKanbanOpen, setIsPlanKanbanOpen] = useState(false);
+    const [isKpiDashboardOpen, setIsKpiDashboardOpen] = useState(false);
+    const [isCircuitBreakerOpen, setIsCircuitBreakerOpen] = useState(false);
+    const [isMemoryViewerOpen, setIsMemoryViewerOpen] = useState(false);
+    const [isSkillLibraryOpen, setIsSkillLibraryOpen] = useState(false);
+    const [isCompanyHealthOpen, setIsCompanyHealthOpen] = useState(false);
+    const [planCount, setPlanCount] = useState(0);
 
     useEffect(() => {
         const adapter = new OpenClawAdapter("", stateBase);
         let cancelled = false;
         const poll = async () => {
             try {
-                const approvals = await adapter.getPendingApprovals();
-                if (!cancelled) setApprovalCount(approvals.length);
+                const plans = await adapter.getAgentPlans();
+                if (!cancelled) {
+                    setPlanCount(plans.filter((p) => p.status === "proposed").length);
+                }
             } catch { /* ignore */ }
         };
         void poll();
@@ -99,7 +116,12 @@ export function OfficeMenu({
         setIsTeamDirectoryOpen(false);
         setIsToolManagerOpen(false);
         setIsSkillManagerOpen(false);
-        setIsApprovalQueueOpen(false);
+        setIsPlanKanbanOpen(false);
+        setIsKpiDashboardOpen(false);
+        setIsCircuitBreakerOpen(false);
+        setIsMemoryViewerOpen(false);
+        setIsSkillLibraryOpen(false);
+        setIsCompanyHealthOpen(false);
     }, [placementMode.active]);
 
     // Handle builder mode toggle - let the scene handle animation
@@ -134,14 +156,49 @@ export function OfficeMenu({
             color: "bg-secondary hover:bg-secondary/80 text-secondary-foreground",
         },
         {
-            id: "approval-queue",
-            icon: ShieldCheck,
-            label: "Approvals",
-            onClick: () => setIsApprovalQueueOpen(true),
-            badge: approvalCount > 0 ? approvalCount : undefined,
-            color: approvalCount > 0
-                ? "bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30"
+            id: "plan-kanban",
+            icon: ClipboardList,
+            label: "Governance Board",
+            onClick: () => setIsPlanKanbanOpen(true),
+            badge: planCount > 0 ? planCount : undefined,
+            color: planCount > 0
+                ? "bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30"
                 : "bg-secondary hover:bg-secondary/80 text-secondary-foreground",
+        },
+        {
+            id: "kpi-dashboard",
+            icon: BarChart3,
+            label: "Agent KPIs",
+            onClick: () => setIsKpiDashboardOpen(true),
+            color: "bg-secondary hover:bg-secondary/80 text-secondary-foreground",
+        },
+        {
+            id: "circuit-breakers",
+            icon: Shield,
+            label: "Circuit Breakers",
+            onClick: () => setIsCircuitBreakerOpen(true),
+            color: "bg-secondary hover:bg-secondary/80 text-secondary-foreground",
+        },
+        {
+            id: "memory-viewer",
+            icon: Brain,
+            label: "Memory Viewer",
+            onClick: () => setIsMemoryViewerOpen(true),
+            color: "bg-secondary hover:bg-secondary/80 text-secondary-foreground",
+        },
+        {
+            id: "skill-library",
+            icon: BookMarked,
+            label: "Skill Library",
+            onClick: () => setIsSkillLibraryOpen(true),
+            color: "bg-secondary hover:bg-secondary/80 text-secondary-foreground",
+        },
+        {
+            id: "company-health",
+            icon: Activity,
+            label: "Company Health",
+            onClick: () => setIsCompanyHealthOpen(true),
+            color: "bg-secondary hover:bg-secondary/80 text-secondary-foreground",
         },
         {
             id: "team-panel",
@@ -244,7 +301,7 @@ export function OfficeMenu({
         canOpenAgentManager,
         canOpenTeamManager,
         canOpenToolManager,
-        approvalCount,
+        planCount,
     ]);
 
     return (
@@ -264,7 +321,12 @@ export function OfficeMenu({
             {isTeamDirectoryOpen ? <TeamDirectory isOpen={isTeamDirectoryOpen} onOpenChange={setIsTeamDirectoryOpen} /> : null}
             {isToolManagerOpen ? <ToolManager isOpen={isToolManagerOpen} onOpenChange={setIsToolManagerOpen} /> : null}
             {isSkillManagerOpen ? <SkillManager isOpen={isSkillManagerOpen} onOpenChange={setIsSkillManagerOpen} /> : null}
-            {isApprovalQueueOpen ? <ApprovalQueue isOpen={isApprovalQueueOpen} onOpenChange={setIsApprovalQueueOpen} /> : null}
+            {isPlanKanbanOpen ? <PlanKanban isOpen={isPlanKanbanOpen} onOpenChange={setIsPlanKanbanOpen} /> : null}
+            {isKpiDashboardOpen ? <KpiDashboard isOpen={isKpiDashboardOpen} onOpenChange={setIsKpiDashboardOpen} /> : null}
+            {isCircuitBreakerOpen ? <CircuitBreakerPanel isOpen={isCircuitBreakerOpen} onOpenChange={setIsCircuitBreakerOpen} /> : null}
+            {isMemoryViewerOpen ? <MemoryViewer isOpen={isMemoryViewerOpen} onOpenChange={setIsMemoryViewerOpen} /> : null}
+            {isSkillLibraryOpen ? <SkillLibrary isOpen={isSkillLibraryOpen} onOpenChange={setIsSkillLibraryOpen} /> : null}
+            {isCompanyHealthOpen ? <CompanyHealthPanel isOpen={isCompanyHealthOpen} onOpenChange={setIsCompanyHealthOpen} /> : null}
         </>
     );
 }

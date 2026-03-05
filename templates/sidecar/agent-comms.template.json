@@ -1,0 +1,50 @@
+[
+  {
+    "id": "comm-001",
+    "fromAgentId": "main",
+    "toAgentId": "shellcorp-pm",
+    "messageType": "delegation",
+    "summary": "Delegated sprint planning review to PM",
+    "ts": 1709290000000
+  },
+  {
+    "id": "comm-002",
+    "fromAgentId": "shellcorp-pm",
+    "toAgentId": "shellcorp-builder",
+    "messageType": "delegation",
+    "summary": "Assigned auth refactor task with high priority",
+    "ts": 1709290600000
+  },
+  {
+    "id": "comm-003",
+    "fromAgentId": "shellcorp-builder",
+    "toAgentId": "shellcorp-pm",
+    "messageType": "status_update",
+    "summary": "Auth session store schema completed, starting middleware",
+    "ts": 1709291200000
+  },
+  {
+    "id": "comm-004",
+    "fromAgentId": "shellcorp-builder",
+    "toAgentId": "main",
+    "messageType": "escalation",
+    "summary": "Production deploy requires CEO approval — risk level critical",
+    "ts": 1709291800000
+  },
+  {
+    "id": "comm-005",
+    "fromAgentId": "shellcorp-pm",
+    "toAgentId": "main",
+    "messageType": "status_update",
+    "summary": "Weekly report sent to stakeholders, all KPIs green",
+    "ts": 1709292400000
+  },
+  {
+    "id": "comm-006",
+    "fromAgentId": "main",
+    "toAgentId": "shellcorp-builder",
+    "messageType": "query",
+    "summary": "What is the estimated completion time for the auth migration?",
+    "ts": 1709293000000
+  }
+]

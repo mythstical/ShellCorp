@@ -1,0 +1,84 @@
+[
+  {
+    "id": "plan-001",
+    "agentId": "shellcorp-builder",
+    "title": "Deploy v2.1 to Production",
+    "goal": "Ship the new dashboard feature with zero-downtime deployment",
+    "riskLevel": "high",
+    "status": "proposed",
+    "steps": [
+      { "id": "s1", "description": "Run full test suite", "toolName": "bash", "status": "pending" },
+      { "id": "s2", "description": "Build production bundle", "toolName": "bash", "status": "pending" },
+      { "id": "s3", "description": "Deploy to staging", "toolName": "deploy", "status": "pending" },
+      { "id": "s4", "description": "Run smoke tests on staging", "toolName": "bash", "status": "pending" },
+      { "id": "s5", "description": "Promote to production", "toolName": "deploy", "status": "pending" }
+    ],
+    "estimatedImpact": "Production deployment affecting all users",
+    "createdAt": 1709280000000
+  },
+  {
+    "id": "plan-002",
+    "agentId": "shellcorp-pm",
+    "title": "Sync Notion Board & Reassign Tasks",
+    "goal": "Reorganize sprint backlog based on priority changes from stakeholder meeting",
+    "riskLevel": "medium",
+    "status": "proposed",
+    "steps": [
+      { "id": "s1", "description": "Fetch latest Notion database state", "toolName": "notion-api", "status": "pending" },
+      { "id": "s2", "description": "Re-prioritize backlog items", "status": "pending" },
+      { "id": "s3", "description": "Reassign 3 tasks to builder agents", "status": "pending" },
+      { "id": "s4", "description": "Post summary to #dev Slack channel", "toolName": "slack-send", "status": "pending" }
+    ],
+    "estimatedImpact": "Affects task assignments for 3 agents",
+    "createdAt": 1709283600000
+  },
+  {
+    "id": "plan-003",
+    "agentId": "main",
+    "title": "Infrastructure Cost Optimization",
+    "goal": "Reduce monthly cloud spend by consolidating underutilized services",
+    "riskLevel": "critical",
+    "status": "proposed",
+    "steps": [
+      { "id": "s1", "description": "Audit current resource usage", "status": "pending" },
+      { "id": "s2", "description": "Identify services below 20% utilization", "status": "pending" },
+      { "id": "s3", "description": "Draft consolidation plan", "status": "pending" },
+      { "id": "s4", "description": "Scale down staging environments", "toolName": "infra-cli", "status": "pending" },
+      { "id": "s5", "description": "Archive unused databases", "toolName": "db-admin", "status": "pending" }
+    ],
+    "estimatedImpact": "Could affect service availability if misconfigured",
+    "createdAt": 1709287200000
+  },
+  {
+    "id": "plan-004",
+    "agentId": "shellcorp-builder",
+    "title": "Refactor Authentication Module",
+    "goal": "Migrate from JWT to session-based auth for improved security",
+    "riskLevel": "high",
+    "status": "in_progress",
+    "steps": [
+      { "id": "s1", "description": "Create session store schema", "toolName": "bash", "status": "done" },
+      { "id": "s2", "description": "Implement session middleware", "toolName": "write", "status": "running" },
+      { "id": "s3", "description": "Update login/logout endpoints", "toolName": "write", "status": "pending" },
+      { "id": "s4", "description": "Add session cleanup cron job", "status": "pending" }
+    ],
+    "estimatedImpact": "All authenticated endpoints will be affected",
+    "createdAt": 1709270000000
+  },
+  {
+    "id": "plan-005",
+    "agentId": "shellcorp-pm",
+    "title": "Weekly Status Report Generation",
+    "goal": "Compile and distribute weekly progress report to stakeholders",
+    "riskLevel": "low",
+    "status": "completed",
+    "steps": [
+      { "id": "s1", "description": "Gather metrics from all projects", "status": "done" },
+      { "id": "s2", "description": "Generate summary document", "status": "done" },
+      { "id": "s3", "description": "Send to stakeholder mailing list", "toolName": "email-send", "status": "done" }
+    ],
+    "estimatedImpact": "Informational only",
+    "createdAt": 1709250000000,
+    "resolvedAt": 1709260000000
+  }
+]

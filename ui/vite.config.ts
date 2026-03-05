@@ -18,6 +18,16 @@ const OFFICE_SETTINGS_PATH = path.join(OPENCLAW_HOME, "office.json");
 const OFFICE_OBJECTS_TEMPLATE_PATH = path.resolve(__dirname, "../officeObjects.json");
 const PENDING_APPROVALS_PATH = path.join(OPENCLAW_HOME, "pending-approvals.json");
 const PENDING_APPROVALS_TEMPLATE_PATH = path.resolve(__dirname, "../templates/sidecar/pending-approvals.template.json");
+const AGENT_PLANS_PATH = path.join(OPENCLAW_HOME, "agent-plans.json");
+const AGENT_PLANS_TEMPLATE_PATH = path.resolve(__dirname, "../templates/sidecar/agent-plans.template.json");
+const AGENT_KPIS_PATH = path.join(OPENCLAW_HOME, "agent-kpis.json");
+const AGENT_KPIS_TEMPLATE_PATH = path.resolve(__dirname, "../templates/sidecar/agent-kpis.template.json");
+const AGENT_COMMS_PATH = path.join(OPENCLAW_HOME, "agent-comms.json");
+const AGENT_COMMS_TEMPLATE_PATH = path.resolve(__dirname, "../templates/sidecar/agent-comms.template.json");
+const CIRCUIT_BREAKERS_PATH = path.join(OPENCLAW_HOME, "circuit-breakers.json");
+const CIRCUIT_BREAKERS_TEMPLATE_PATH = path.resolve(__dirname, "../templates/sidecar/circuit-breakers.template.json");
+const EXTRACTED_SKILLS_PATH = path.join(OPENCLAW_HOME, "extracted-skills.json");
+const EXTRACTED_SKILLS_TEMPLATE_PATH = path.resolve(__dirname, "../templates/sidecar/extracted-skills.template.json");
 const DEFAULT_MESH_ASSET_DIR = path.join(OPENCLAW_HOME, "assets", "meshes");
 const MESH_EXTENSIONS = new Set([".glb", ".gltf"]);
 
@@ -913,6 +923,144 @@ function shellcorpStateBridge() {
           await mkdir(path.dirname(PENDING_APPROVALS_PATH), { recursive: true });
           await writeFile(PENDING_APPROVALS_PATH, `${JSON.stringify(updated, null, 2)}\n`, "utf-8");
           writeJson(res, 200, { ok: true });
+          return;
+        }
+
+        // ── Agent Plans (Kanban) ───────────────────────────────────────────
+        if (method === "GET" && pathname === "/openclaw/agent-plans") {
+          let plans = await readJsonFile<unknown[]>(AGENT_PLANS_PATH, []);
+          if (!Array.isArray(plans)) plans = [];
+          if (plans.length === 0) {
+            const seeded = await readJsonFile<unknown[]>(AGENT_PLANS_TEMPLATE_PATH, []);
+            if (Array.isArray(seeded) && seeded.length > 0) {
+              plans = seeded;
+              await mkdir(path.dirname(AGENT_PLANS_PATH), { recursive: true });
+              await writeFile(AGENT_PLANS_PATH, `${JSON.stringify(plans, null, 2)}\n`, "utf-8");
+            }
+          }
+          writeJson(res, 200, { plans });
+          return;
+        }
+
+        if (method === "POST" && pathname === "/openclaw/agent-plans/resolve") {
+          const body = (await readBody(req)) as JsonObject;
+          const planId = String(body.id ?? "").trim();
+          const decision = String(body.decision ?? "").trim();
+          const validDecisions = ["approved", "rejected", "in_progress", "completed"];
+          if (!planId || !validDecisions.includes(decision)) {
+            writeJson(res, 400, { ok: false, error: "invalid_request: need id and decision" });
+            return;
+          }
+          let plans = await readJsonFile<unknown[]>(AGENT_PLANS_PATH, []);
+          if (!Array.isArray(plans)) plans = [];
+          let found = false;
+          const updated = plans.map((entry) => {
+            if (entry && typeof entry === "object" && (entry as JsonObject).id === planId) {
+              found = true;
+              return { ...(entry as JsonObject), status: decision, resolvedAt: Date.now() };
+            }
+            return entry;
+          });
+          if (!found) {
+            writeJson(res, 404, { ok: false, error: "plan_not_found" });
+            return;
+          }
+          await mkdir(path.dirname(AGENT_PLANS_PATH), { recursive: true });
+          await writeFile(AGENT_PLANS_PATH, `${JSON.stringify(updated, null, 2)}\n`, "utf-8");
+          writeJson(res, 200, { ok: true });
+          return;
+        }
+
+        // ── Agent KPIs ──────────────────────────────────────────────────────
+        if (method === "GET" && pathname === "/openclaw/agent-kpis") {
+          let kpis = await readJsonFile<unknown[]>(AGENT_KPIS_PATH, []);
+          if (!Array.isArray(kpis)) kpis = [];
+          if (kpis.length === 0) {
+            const seeded = await readJsonFile<unknown[]>(AGENT_KPIS_TEMPLATE_PATH, []);
+            if (Array.isArray(seeded) && seeded.length > 0) {
+              kpis = seeded;
+              await mkdir(path.dirname(AGENT_KPIS_PATH), { recursive: true });
+              await writeFile(AGENT_KPIS_PATH, `${JSON.stringify(kpis, null, 2)}\n`, "utf-8");
+            }
+          }
+          writeJson(res, 200, { kpis });
+          return;
+        }
+
+        // ── Agent Communications ─────────────────────────────────────────
+        if (method === "GET" && pathname === "/openclaw/agent-comms") {
+          let comms = await readJsonFile<unknown[]>(AGENT_COMMS_PATH, []);
+          if (!Array.isArray(comms)) comms = [];
+          if (comms.length === 0) {
+            const seeded = await readJsonFile<unknown[]>(AGENT_COMMS_TEMPLATE_PATH, []);
+            if (Array.isArray(seeded) && seeded.length > 0) {
+              comms = seeded;
+              await mkdir(path.dirname(AGENT_COMMS_PATH), { recursive: true });
+              await writeFile(AGENT_COMMS_PATH, `${JSON.stringify(comms, null, 2)}\n`, "utf-8");
+            }
+          }
+          writeJson(res, 200, { comms });
+          return;
+        }
+
+        // ── Circuit Breakers ─────────────────────────────────────────────
+        if (method === "GET" && pathname === "/openclaw/circuit-breakers") {
+          let breakers = await readJsonFile<unknown[]>(CIRCUIT_BREAKERS_PATH, []);
+          if (!Array.isArray(breakers)) breakers = [];
+          if (breakers.length === 0) {
+            const seeded = await readJsonFile<unknown[]>(CIRCUIT_BREAKERS_TEMPLATE_PATH, []);
+            if (Array.isArray(seeded) && seeded.length > 0) {
+              breakers = seeded;
+              await mkdir(path.dirname(CIRCUIT_BREAKERS_PATH), { recursive: true });
+              await writeFile(CIRCUIT_BREAKERS_PATH, `${JSON.stringify(breakers, null, 2)}\n`, "utf-8");
+            }
+          }
+          writeJson(res, 200, { breakers });
+          return;
+        }
+
+        if (method === "POST" && pathname === "/openclaw/circuit-breakers/toggle") {
+          const body = (await readBody(req)) as JsonObject;
+          const agentId = String(body.agentId ?? "").trim();
+          const targetState = String(body.state ?? "").trim();
+          const validStates = ["closed", "open", "half_open"];
+          if (!agentId || !validStates.includes(targetState)) {
+            writeJson(res, 400, { ok: false, error: "invalid_request: need agentId and state" });
+            return;
+          }
+          let breakers = await readJsonFile<unknown[]>(CIRCUIT_BREAKERS_PATH, []);
+          if (!Array.isArray(breakers)) breakers = [];
+          let found = false;
+          const updated = breakers.map((entry) => {
+            if (entry && typeof entry === "object" && (entry as JsonObject).agentId === agentId) {
+              found = true;
+              return { ...(entry as JsonObject), state: targetState };
+            }
+            return entry;
+          });
+          if (!found) {
+            writeJson(res, 404, { ok: false, error: "breaker_not_found" });
+            return;
+          }
+          await mkdir(path.dirname(CIRCUIT_BREAKERS_PATH), { recursive: true });
+          await writeFile(CIRCUIT_BREAKERS_PATH, `${JSON.stringify(updated, null, 2)}\n`, "utf-8");
+          writeJson(res, 200, { ok: true });
+          return;
+        }
+
+        // ── Extracted Skills ─────────────────────────────────────────────
+        if (method === "GET" && pathname === "/openclaw/extracted-skills") {
+          let skills = await readJsonFile<unknown[]>(EXTRACTED_SKILLS_PATH, []);
+          if (!Array.isArray(skills)) skills = [];
+          if (skills.length === 0) {
+            const seeded = await readJsonFile<unknown[]>(EXTRACTED_SKILLS_TEMPLATE_PATH, []);
+            if (Array.isArray(seeded) && seeded.length > 0) {
+              skills = seeded;
+              await mkdir(path.dirname(EXTRACTED_SKILLS_PATH), { recursive: true });
+              await writeFile(EXTRACTED_SKILLS_PATH, `${JSON.stringify(skills, null, 2)}\n`, "utf-8");
+            }
+          }
+          writeJson(res, 200, { skills });
           return;
         }
 

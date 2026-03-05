@@ -1,0 +1,68 @@
+[
+  {
+    "id": "skill-001",
+    "name": "Zero-Downtime Deployment",
+    "description": "Blue-green deployment strategy with health checks and automatic rollback on failure",
+    "sourceAgentId": "shellcorp-builder",
+    "extractedAt": 1709200000000,
+    "usageCount": 12,
+    "successRate": 0.92,
+    "category": "DevOps",
+    "tags": ["deployment", "production", "reliability"]
+  },
+  {
+    "id": "skill-002",
+    "name": "Notion Task Sync Protocol",
+    "description": "Bidirectional sync between internal task store and Notion databases with conflict resolution",
+    "sourceAgentId": "shellcorp-pm",
+    "extractedAt": 1709210000000,
+    "usageCount": 34,
+    "successRate": 0.97,
+    "category": "Integration",
+    "tags": ["notion", "sync", "tasks"]
+  },
+  {
+    "id": "skill-003",
+    "name": "Git Branch Management",
+    "description": "Automated branch creation, PR generation, and merge strategy based on project conventions",
+    "sourceAgentId": "shellcorp-builder",
+    "extractedAt": 1709220000000,
+    "usageCount": 28,
+    "successRate": 0.89,
+    "category": "Development",
+    "tags": ["git", "branching", "automation"]
+  },
+  {
+    "id": "skill-004",
+    "name": "Stakeholder Report Generation",
+    "description": "Compile cross-project metrics into formatted weekly summary with KPI trend analysis",
+    "sourceAgentId": "shellcorp-pm",
+    "extractedAt": 1709230000000,
+    "usageCount": 8,
+    "successRate": 1.0,
+    "category": "Reporting",
+    "tags": ["reports", "metrics", "stakeholders"]
+  },
+  {
+    "id": "skill-005",
+    "name": "Error Root Cause Analysis",
+    "description": "Systematic debugging pattern: reproduce, isolate, identify root cause, fix, verify, document",
+    "sourceAgentId": "main",
+    "extractedAt": 1709240000000,
+    "usageCount": 19,
+    "successRate": 0.84,
+    "category": "Debugging",
+    "tags": ["debugging", "analysis", "systematic"]
+  },
+  {
+    "id": "skill-006",
+    "name": "API Rate Limit Handling",
+    "description": "Exponential backoff with jitter for graceful handling of rate-limited external API calls",
+    "sourceAgentId": "shellcorp-builder",
+    "extractedAt": 1709250000000,
+    "usageCount": 15,
+    "successRate": 0.93,
+    "category": "Development",
+    "tags": ["api", "rate-limiting", "resilience"]
+  }
+]

@@ -16,6 +16,7 @@ import { SkillsPanel } from '@/features/office-system/components/skills-panel';
 import { TrainingModal } from '@/features/self-improvement-system/components/training-modal';
 import { TeamPanel } from '@/features/team-system/components/team-panel';
 import { preloadMeshes } from '@/features/office-system/systems/mesh-cache';
+import { LiveFeedTicker } from './hud/live-feed-ticker';
 
 // Main Office Simulation Component
 export default function OfficeSimulation() {
@@ -38,6 +39,7 @@ export default function OfficeSimulation() {
     const isSettingsModalOpen = useAppStore(state => state.isSettingsModalOpen);
     const setIsSettingsModalOpen = useAppStore(state => state.setIsSettingsModalOpen);
     const [isLogsDrawerOpen, setIsLogsDrawerOpen] = useState(false);
+    const [isLiveFeedVisible, setIsLiveFeedVisible] = useState(true);
 
     // Get company ID from the first team (all teams should have same companyId)
     const companyId = company?._id;
@@ -121,6 +123,8 @@ export default function OfficeSimulation() {
             </div>
 
             <LogsDrawer open={isLogsDrawerOpen} onOpenChange={setIsLogsDrawerOpen} gatewayBase={gatewayBase} />
+
+            <LiveFeedTicker visible={isLiveFeedVisible} onToggle={() => setIsLiveFeedVisible((prev) => !prev)} />
 
             {/* Team Options Dialog - rendered outside Canvas to access ConvexProvider */}
             {activeTeamForOptions && (

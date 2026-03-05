@@ -1,0 +1,44 @@
+[
+  {
+    "agentId": "main",
+    "displayName": "Main Agent",
+    "tasksCompleted": 47,
+    "tasksFailed": 2,
+    "tasksInProgress": 3,
+    "avgResponseMs": 1250,
+    "errorRate": 0.04,
+    "qualityScore": 0.92,
+    "sessionCount": 156,
+    "tokenUsage": 2450000,
+    "trend": [38, 41, 35, 44, 47, 43, 47],
+    "period": "7d"
+  },
+  {
+    "agentId": "shellcorp-builder",
+    "displayName": "Builder Agent",
+    "tasksCompleted": 31,
+    "tasksFailed": 5,
+    "tasksInProgress": 2,
+    "avgResponseMs": 2100,
+    "errorRate": 0.14,
+    "qualityScore": 0.78,
+    "sessionCount": 89,
+    "tokenUsage": 1870000,
+    "trend": [22, 25, 28, 24, 30, 27, 31],
+    "period": "7d"
+  },
+  {
+    "agentId": "shellcorp-pm",
+    "displayName": "PM Agent",
+    "tasksCompleted": 63,
+    "tasksFailed": 1,
+    "tasksInProgress": 5,
+    "avgResponseMs": 890,
+    "errorRate": 0.02,
+    "qualityScore": 0.96,
+    "sessionCount": 210,
+    "tokenUsage": 980000,
+    "trend": [55, 58, 60, 57, 62, 59, 63],
+    "period": "7d"
+  }
+]
